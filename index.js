@@ -6,6 +6,7 @@ var request = require('request');
 // For this tutorial, we'll keep your API credentials right here. But for an actual app, you'll want to  store them securely in environment variables.
 var clientId = '346977433796.434115778689';
 var clientSecret = '3eef2d00ca64d28d27bed0001e29a21a';
+var webhookURL = 'https://hooks.slack.com/services/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';
 
 // Instantiates Express and assigns our app variable to it
 var app = express();
@@ -55,5 +56,6 @@ app.get('/oauth', function(req, res) {
 
 // Route the endpoint that our slash command will point to and send back a simple response to indicate that ngrok is working
 app.post('/command', function(req, res) {
+    // res.send('Your ngrok tunnel is up and running!');
     res.send('Your ngrok tunnel is up and running!');
 });
