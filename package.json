@@ -1,15 +1,17 @@
 {
   "name": "Unsplash2SlackApp",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A Slack app to show pictures from Unsplash",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node -r dotenv/config app.js"
   },
   "author": "JabarJung Sandhu",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.16.3",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "body-parser": "^1.18.2",
+    "dotenv": "^5.0.1"
   }
 }
