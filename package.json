@@ -1,6 +1,6 @@
 {
-  "name": "Unsplash2SlackApp",
-  "version": "0.0.1",
+  "name": "unsplash2slackapp",
+  "version": "1.0.0",
   "description": "A Slack app to show pictures from Unsplash",
   "main": "app.js",
   "scripts": {

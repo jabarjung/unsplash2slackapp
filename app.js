@@ -3,9 +3,13 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 var app = express();
+const pageNo = '1';
+const itemsPerPage = '10';
 
 // Define JSON parsing mode for Events API requests
 app.use(bodyParser.json())
+// Define URLENCODED parsing mode for Events API requests
+app.use(bodyParser.urlencoded({extended:false}));
 
 // Get environment variables
 var apiToken = process.env.API_TOKEN;
@@ -13,63 +17,45 @@ var channelId = process.env.CHANNEL_ID;
 var clientId = process.env.CLIENT_ID;
 var clientSecret = process.env.CLIENT_SECRET;
 var webhookURL = process.env.WEBHOOK_URL;
-const port = process.env.PORT;
+var port = process.env.PORT;
+var unsplashApiUrl = process.env.UNSPLASH_API_URL;
+var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+var unsplashSecretKey = process.env.UNSPLASH_SECRET_KEY;
+
+// This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
+app.get('/', function(req, res) {
+    res.send('Ngrok is working! Path Hit: ' + req.url);
+});
 
 // Handle Events API events
-
 app.post('/message', function(req, res){
   if (req.body.challenge) {
     res.send({"challenge":req.body.challenge});
   } else {
-    // Store details about the user
-    var evt = req.body.event;
-    var user_id = evt.user.id;
-    var user_name = evt.user.profile.real_name_normalized;
-    var status_text = evt.user.profile.status_text;
-    var status_emoji = evt.user.profile.status_emoji;
-
-    // If no full name set, use the username instead
-    if(user_name == "") {
-      user_name = evt.user.name;
-    }
-
     // Return a 200 to the event request
     res.status(200).end();
-
-    // Build the message payload
-    buildMessage(user_id, user_name, status_text, status_emoji);
   }
 });
 
-// Build the message payload
-function buildMessage(user_id, user_name, status_text, status_emoji) {
-
-  if(status_text.length > 0) {
-    // If their status contains some text
-    var message = [
-      {
-        "pretext": user_name + " updated their status:",
-        "text": status_emoji + " *" + status_text + "*"
-      }
-    ];
+// App gets the search keyword from the user.
+app.post('/pic', function(req, res){
+  // Return a 200 status back confirming that the command has been received.
+  res.status(200).end();
+  if (req.body.text) {
+    var searchWord = req.body.text;
+    // Now do something with the search word.
   } else {
-    // If their status is empty
-    var message = [
-      {
-        "pretext": user_name + " cleared their status"
-      }
-    ];
+    var reply = "Please specify a search term.";
+    sendResponse(reply);
   }
+});
 
-  postUpdate(message);
-}
-
-// Post the actual message to a channel
-function postUpdate(attachments) {
+// Post the respone back to the user in the channel
+function sendResponse(response) {
   var data = {
     "token": apiToken,
     "channel": channelId,
-    "attachments": JSON.stringify(attachments),
+    "text": JSON.stringify(response),
     "pretty": true
   };
   request.post(
@@ -83,7 +69,7 @@ function postUpdate(attachments) {
         console.log(err);
       } else{
         // Otherwise, log Slack API responses
-        console.log(body);
+        // console.log(body);
       }
     }
   );
