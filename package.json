@@ -8,6 +8,7 @@
   },
   "author": "JabarJung Sandhu",
   "license": "MIT",
+  "repository": {},
   "dependencies": {
     "express": "^4.16.3",
     "request": "^2.88.0",
