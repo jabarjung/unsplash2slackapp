@@ -38,13 +38,13 @@ app.post('/pic', function(req, res){
   if (req.body.text) {
     unsplash(req.body.text);
   } else {
-    sendResponse("Please specify a search term.");
+    sendResponse("Please specify a search keyword.");
   }
 });
 function unsplash(searchWord) {
   fetch(
     unsplashApiUrl +
-      '/search/photos/?page=' +
+      '/search/photos?&query=' +
       searchWord +
       '&client_id=' +
       unsplashAccessKey,
@@ -59,8 +59,10 @@ function unsplash(searchWord) {
       failedResponse();
     });
 }
-function successfulResponse() {
-  // Do something about it.
+function successfulResponse(response) {
+  thumbnailPicture = response.results[0].urls.thumb;
+  regularPicture = response.results[0].urls.regular;
+  sendResponse(thumbnailPicture);
 }
 function failedResponse() {
   sendResponse("Your search keyword did not return any results. Please try a different one.");
