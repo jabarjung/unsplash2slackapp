@@ -42,14 +42,16 @@ app.post('/pic', function(req, res){
   // Return a 200 status back confirming that the command has been received.
   res.status(200).end();
   if (req.body.text) {
-    var searchWord = req.body.text;
-    // Now do something with the search word.
+    unsplash(req.body.text);
   } else {
     var reply = "Please specify a search term.";
     sendResponse(reply);
   }
 });
 
+function unsplash(searchWord) {
+  
+}
 // Post the respone back to the user in the channel
 function sendResponse(response) {
   var data = {
