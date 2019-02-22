@@ -18,6 +18,9 @@ var port = process.env.PORT;
 var unsplashApiUrl = process.env.UNSPLASH_API_URL;
 var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 var unsplashSecretKey = process.env.UNSPLASH_SECRET_KEY;
+// Declare arrays to store the URLs for pictures fetched from Unsplash.
+let thumbnailPictures = [];
+let regularPictures = [];
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
 app.get('/', function(req, res) {
     res.send('Ngrok is working! Path Hit: ' + req.url);
@@ -60,9 +63,11 @@ function unsplash(searchWord) {
     });
 }
 function successfulResponse(response) {
-  thumbnailPicture = response.results[0].urls.thumb;
-  regularPicture = response.results[0].urls.regular;
-  sendResponse(thumbnailPicture);
+  response.results.forEach(function(e) {
+      thumbnailPictures.push(e.urls.thumb);
+      regularPictures.push(e.urls.regular);
+  });
+  sendResponse(thumbnailPictures);
 }
 function failedResponse() {
   sendResponse("Your search keyword did not return any results. Please try a different one.");
