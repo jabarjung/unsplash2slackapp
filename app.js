@@ -17,7 +17,6 @@ var webhookURL = process.env.WEBHOOK_URL;
 var port = process.env.PORT;
 var unsplashApiUrl = process.env.UNSPLASH_API_URL;
 var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
-var unsplashSecretKey = process.env.UNSPLASH_SECRET_KEY;
 // Declare arrays to store the URLs for pictures fetched from Unsplash.
 let thumbnailPictures = [];
 let regularPictures = [];
@@ -63,11 +62,12 @@ function unsplash(searchWord) {
     });
 }
 function successfulResponse(response) {
+  // If response is successful then store all of the required pictures and let the user pick one.
   response.results.forEach(function(e) {
       thumbnailPictures.push(e.urls.thumb);
       regularPictures.push(e.urls.regular);
   });
-  sendResponse(thumbnailPictures);
+  pickAPicture();
 }
 function failedResponse() {
   sendResponse("Your search keyword did not return any results. Please try a different one.");
@@ -92,6 +92,79 @@ function sendResponse(response) {
       } else{
         // Otherwise, log Slack API responses
         // console.log(body);
+      }
+    }
+  );
+}
+function pickAPicture() {
+  var response = [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*Please shuffle through pictures and select one to send:*"
+      }
+    },
+      {
+      "type": "image",
+      "title": {
+        "type": "plain_text",
+        "text": "This is what I have found.",
+        "emoji": true
+      },
+      "image_url": thumbnailPictures[0],
+      "alt_text": "This is what I have found."
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Send",
+            "emoji": true
+          },
+          "value": "send"
+        },
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Shuffle",
+            "emoji": true
+          },
+          "value": "shuffle"
+        },
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Cancel",
+            "emoji": true
+          },
+          "value": "cancel"
+        }
+      ]
+    }
+  ];
+  var data = {
+    "token": apiToken,
+    "channel": channelId,
+    // Mentioning "content-type" is optional
+    // "content-type": 'application/json',
+    "blocks": JSON.stringify(response),
+    "pretty": true
+  };
+  request.post(
+    "https://slack.com/api/chat.postMessage",
+    {
+      form: data
+    },
+    function(err, resp, body) {
+      if(err) {
+        // If there's an HTTP error, log the error message
+        console.log(err);
       }
     }
   );
