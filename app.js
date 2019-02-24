@@ -39,7 +39,7 @@ app.post('/select', function(req, res){
   res.status(200).end();
   parsedObject = JSON.parse(req.body.payload);
   if (parsedObject.actions[0].value === "send") {
-    // Do something here
+    postPicture(parsedObject.message.blocks[1].image_url);
   } 
   else if (parsedObject.actions[0].value === "shuffle") {
     // Do something here
@@ -112,6 +112,7 @@ function sendResponse(response) {
     }
   );
 }
+// Let user pick a picture
 function pickAPicture() {
   var response = [
     {
@@ -162,6 +163,41 @@ function pickAPicture() {
           "value": "cancel"
         }
       ]
+    }
+  ];
+  var data = {
+    "token": apiToken,
+    "channel": channelId,
+    // Mentioning "content-type" is optional
+    // "content-type": 'application/json',
+    "blocks": JSON.stringify(response),
+    "pretty": true
+  };
+  request.post(
+    "https://slack.com/api/chat.postMessage",
+    {
+      form: data
+    },
+    function(err, resp, body) {
+      if(err) {
+        // If there's an HTTP error, log the error message
+        console.log(err);
+      }
+    }
+  );
+}
+// Post the selected picture in the channel
+function postPicture(selectedPictureURL) {
+  var response = [
+      {
+      "type": "image",
+      "title": {
+        "type": "plain_text",
+        "text": "This is the picture you selected.",
+        "emoji": true
+      },
+      "image_url": selectedPictureURL,
+      "alt_text": "This is the picture you selected."
     }
   ];
   var data = {
