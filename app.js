@@ -33,6 +33,22 @@ app.post('/message', function(req, res){
     res.status(200).end();
   }
 });
+// User shuffles or sends picture to post
+app.post('/select', function(req, res){
+  // Return a 200 status back confirming that the command has been received.
+  res.status(200).end();
+  parsedObject = JSON.parse(req.body.payload);
+  if (parsedObject.actions[0].value === "send") {
+    // Do something here
+  } 
+  else if (parsedObject.actions[0].value === "shuffle") {
+    // Do something here
+  }
+  else {
+    // Only option left for 'req.body.actions.value' is 'cancel' so just cancel the conversation
+    // Otherwise just cancel the request
+  }
+});
 // App gets the search keyword from the user.
 app.post('/pic', function(req, res){
   // Return a 200 status back confirming that the command has been received.
