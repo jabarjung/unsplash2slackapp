@@ -75,9 +75,15 @@ function unsplash(whoSendIt, searchWord) {
       return response.json();
     })
     .then(function(response) {
-      successfulResponse(whoSendIt, response);
+      if (response.results.length === 0) {
+        // Array is empty
+        failedResponse(whoSendIt);
+      } else {
+        // Array is filled
+        successfulResponse(whoSendIt, response);
+      }
     })
-    .catch(function() {
+    .catch(function(error) {
       failedResponse(whoSendIt);
     });
 }
@@ -93,15 +99,26 @@ function successfulResponse(whoSendIt, response) {
   pickAPicture(whoSendIt);
 }
 function failedResponse(whoSendIt) {
-  sendResponse(whoSendIt, "Your search keyword did not return any results. Please try a different one.");
+  sendResponse(whoSendIt, "Oops! We couldn't find anything. You can use your imagination.");
 }
 // Post the respone back to the user in the channel
-function sendResponse(whoSendIt, response) {
+function sendResponse(whoSendIt, responseString) {
+  responseString = responseString.concat(' ', ":simple_smile:");
+  var response = [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": responseString
+      }
+    }
+  ];
+
   var data = {
     "token": apiToken,
     "channel": channelId,
     "user": whoSendIt,
-    "text": JSON.stringify(response),
+    "blocks": JSON.stringify(response),
     "pretty": true
   };
   request.post(
