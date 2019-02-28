@@ -113,7 +113,6 @@ function sendResponse(whoSendIt, responseString) {
       }
     }
   ];
-
   var data = {
     "token": apiToken,
     "channel": channelId,
