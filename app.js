@@ -17,9 +17,8 @@ var webhookURL = process.env.WEBHOOK_URL;
 var port = process.env.PORT;
 var unsplashApiUrl = process.env.UNSPLASH_API_URL;
 var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
-// Declare arrays to store the URLs for pictures fetched from Unsplash
-let thumbnailPictures = [];
-let regularPictures = [];
+// Declare array to store response received from Unsplash
+let unsplashResponse = [];
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
 app.get('/', function(req, res) {
     res.send('Ngrok is working! Path Hit: ' + req.url);
@@ -42,10 +41,10 @@ app.post('/select', function(req, res){
     // If the user has made the selection then cancel the 'selection window' first
     cancelCommand(parsedObject.response_url);
     // And then post the selected picture
-    postPicture(thumbnailPictures[0]);
+    postPicture(unsplashResponse[parseInt(parsedObject.actions[0].value)].urls.thumb);
   } 
   else if (parsedObject.actions[0].action_id === "shuffle") {
-    // Do something here
+    pickAPicture(parsedObject.user.id, parseInt(parsedObject.actions[0].value));
   }
   else if (parsedObject.actions[0].action_id === "cancel") {
     // Only option left for 'req.body.actions.value' is 'cancel' so just cancel the conversation
@@ -88,15 +87,11 @@ function unsplash(whoSendIt, searchWord) {
     });
 }
 function successfulResponse(whoSendIt, response) {
-  // If the response is successful then empty the arrays just in case if they are filled
-  thumbnailPictures.length = 0;
-  regularPictures.length = 0;
-  // If response is successful then store all of the required pictures and let the user pick one
-  response.results.forEach(function(e) {
-      thumbnailPictures.push(e.urls.thumb);
-      regularPictures.push(e.urls.regular);
-  });
-  pickAPicture(whoSendIt);
+  // If the response is successful then empty the array just in case it is filled
+  unsplashResponse.length = 0;
+  // If response is successful then store the response from Unsplash and let user pick a picture
+  unsplashResponse = response.results;
+  pickAPicture(whoSendIt, 0);
 }
 function failedResponse(whoSendIt) {
   sendResponse(whoSendIt, "Oops! We couldn't find anything. You can use your imagination.");
@@ -137,7 +132,7 @@ function sendResponse(whoSendIt, responseString) {
   );
 }
 // Let user pick a picture
-function pickAPicture(whoSendIt) {
+function pickAPicture(whoSendIt, index) {
   var response = [{
     "type": "section",
     "block_id": "picturesFromUnsplash",
@@ -153,7 +148,7 @@ function pickAPicture(whoSendIt) {
             "text": "This is what I have found.",
             "emoji": true
           },
-          "image_url": thumbnailPictures[0],
+          "image_url": unsplashResponse[index].urls.thumb,
           "alt_text": "This is what I have found."
         },
         {
@@ -167,7 +162,7 @@ function pickAPicture(whoSendIt) {
                 "text": "Send",
                 "emoji": true
               },
-              "value": "send"
+              "value": String(index)
             },
             {
               "type": "button",
@@ -177,7 +172,7 @@ function pickAPicture(whoSendIt) {
                 "text": "Shuffle",
                 "emoji": true
               },
-              "value": "shuffle"
+              "value": String(index+1)
             },
             {
               "type": "button",
