@@ -37,16 +37,16 @@ app.post('/select', function(req, res){
   // Return a 200 status back confirming that the command has been received
   res.status(200).end();
   parsedObject = JSON.parse(req.body.payload);
-  if (parsedObject.actions[0].action_id === "send") {
+  if (parsedObject.actions[0].name === "send") {
     // If the user has made the selection then cancel the 'selection window' first
     cancelCommand(parsedObject.response_url);
     // And then post the selected picture
     postPicture(unsplashResponse[parseInt(parsedObject.actions[0].value)].urls.thumb);
   } 
-  else if (parsedObject.actions[0].action_id === "shuffle") {
+  else if (parsedObject.actions[0].name === "shuffle") {
     pickAPicture(parsedObject.user.id, parseInt(parsedObject.actions[0].value));
   }
-  else if (parsedObject.actions[0].action_id === "cancel") {
+  else if (parsedObject.actions[0].name === "cancel") {
     // Only option left for 'req.body.actions.value' is 'cancel' so just cancel the conversation
     // Otherwise just cancel the request
     cancelCommand(parsedObject.response_url);
@@ -134,65 +134,46 @@ function sendResponse(whoSendIt, responseString) {
 // Let user pick a picture
 function pickAPicture(whoSendIt, index) {
   var response = [{
-    "type": "section",
-    "block_id": "picturesFromUnsplash",
-    "text":{
-            "type": "mrkdwn",
-            "text": "*Please shuffle through pictures and select one to send:*"
-          }
-    },
-          {
-          "type": "image",
-          "title": {
-            "type": "plain_text",
-            "text": "This is what I have found.",
-            "emoji": true
-          },
-          "image_url": unsplashResponse[index].urls.thumb,
-          "alt_text": "This is what I have found."
-        },
-        {
-          "type": "actions",
-          "elements": [
+        "callback_id": "picturesFromUnsplash",
+        "pretext": "This is what I have found.",
+        "author_name": "JabarJung Sandhu",
+        "author_link": "https://jabarjungsandhu.com",
+        "title": "Courtsey of Unsplash",
+        "title_link": "https://unsplash.com",
+        "text": "*Please shuffle through pictures and select one to send:*",
+        "image_url": unsplashResponse[index].urls.thumb,
+        "fallback": "This is what I have found.",
+        "actions": [
             {
+              "name": "send",
+              "value": String(index),
               "type": "button",
-              "action_id": "send",
-              "text": {
-                "type": "plain_text",
-                "text": "Send",
-                "emoji": true
-              },
-              "value": String(index)
+              "text": "Send",
+              "style": "primary"
             },
             {
+              "name": "shuffle",
+              "value": String(index+1),
               "type": "button",
-              "action_id": "shuffle",
-              "text": {
-                "type": "plain_text",
-                "text": "Shuffle",
-                "emoji": true
-              },
-              "value": String(index+1)
+              "text": "Shuffle",
+              "style": "default"
             },
             {
+              "name": "cancel",
+              "value": "cancel",
               "type": "button",
-              "action_id": "cancel",
-              "text": {
-                "type": "plain_text",
-                "text": "Cancel",
-                "emoji": true
-              },
-              "value": "cancel"
+              "text": "Cancel",
+              "style": "danger"
             }
-          ]
-        }];
+        ]
+      }];
   var data = {
     "token": apiToken,
     "channel": channelId,
     // Mentioning "content-type" is optional
     // "content-type": 'application/json',
     "user": whoSendIt,
-    "blocks": JSON.stringify(response),
+    "attachments": JSON.stringify(response),
     "pretty": true
   };
   request.post(
