@@ -19,6 +19,8 @@ var unsplashApiUrl = process.env.UNSPLASH_API_URL;
 var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 // Declare array to store response received from Unsplash
 let unsplashResponse = [];
+// Variable 'e' is declared so that the selection cycles through array if needed
+var e = "";
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
 app.get('/', function(req, res) {
     res.send('Ngrok is working! Path Hit: ' + req.url);
@@ -133,12 +135,18 @@ function sendResponse(whoSendIt, responseString) {
 }
 // Let user pick a picture
 function pickAPicture(whoSendIt, index) {
+  // To make sure that the selection doesn't fall out of array length
+  if(index === (unsplashResponse.length-1)) {
+    e = 0;
+  } else {
+    e = index+1;
+  }
   var response = [{
         "callback_id": "picturesFromUnsplash",
         "pretext": "This is what I have found.",
         "author_name": "JabarJung Sandhu",
         "author_link": "https://jabarjungsandhu.com",
-        "title": "Courtsey of Unsplash",
+        "title": "Courtesy of Unsplash",
         "title_link": "https://unsplash.com",
         "text": "*Please shuffle through pictures and select one to send:*",
         "image_url": unsplashResponse[index].urls.thumb,
@@ -153,7 +161,7 @@ function pickAPicture(whoSendIt, index) {
             },
             {
               "name": "shuffle",
-              "value": String(index+1),
+              "value": String(e),
               "type": "button",
               "text": "Shuffle",
               "style": "default"
