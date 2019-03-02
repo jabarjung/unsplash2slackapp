@@ -148,7 +148,6 @@ function pickAPicture(whoSendIt, index) {
         "author_link": "https://jabarjungsandhu.com",
         "title": "Courtesy of Unsplash",
         "title_link": "https://unsplash.com",
-        "text": "*Please shuffle through pictures and select one to send:*",
         "image_url": unsplashResponse[index].urls.thumb,
         "fallback": "This is what I have found.",
         "actions": [
@@ -214,7 +213,6 @@ function shuffleAPicture(index, responseURL) {
             "author_link": "https://jabarjungsandhu.com",
             "title": "Courtesy of Unsplash",
             "title_link": "https://unsplash.com",
-            "text": "*Please shuffle through pictures and select one to send:*",
             "image_url": unsplashResponse[index].urls.thumb,
             "fallback": "This is what I have found.",
             "actions": [
