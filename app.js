@@ -242,7 +242,6 @@ function shuffleAPicture(index, responseURL) {
         ],
         "response_type": "ephemeral",
         "replace_original": true,
-        "delete_original": true,
         "pretty": true
       };
   var data = JSON.stringify(response);
