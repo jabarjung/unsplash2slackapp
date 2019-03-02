@@ -9,12 +9,13 @@ app.use(bodyParser.json())
 // Define URLENCODED parsing mode for Events API requests
 app.use(bodyParser.urlencoded({extended:false}));
 // Get environment variables
+require('dotenv').config();
 var apiToken = process.env.API_TOKEN;
 var channelId = process.env.CHANNEL_ID;
 var clientId = process.env.CLIENT_ID;
 var clientSecret = process.env.CLIENT_SECRET;
 var webhookURL = process.env.WEBHOOK_URL;
-var port = process.env.PORT;
+var port = parseInt(process.env.PORT);
 var unsplashApiUrl = process.env.UNSPLASH_API_URL;
 var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 // Declare array to store response received from Unsplash
