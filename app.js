@@ -44,10 +44,11 @@ app.post('/select', function(req, res){
     // If the user has made the selection then cancel the 'selection window' first
     cancelCommand(parsedObject.response_url);
     // And then post the selected picture
-    postPicture(unsplashResponse[parseInt(parsedObject.actions[0].value)].urls.thumb);
+    // User selects thumbnail and small size is posted for now
+    postPicture(parseInt(parsedObject.actions[0].value), parsedObject.callback_id);
   } 
   else if (parsedObject.actions[0].name === "shuffle") {
-    shuffleAPicture(parseInt(parsedObject.actions[0].value), parsedObject.response_url);
+    shuffleAPicture(parseInt(parsedObject.actions[0].value), parsedObject.response_url, parsedObject.callback_id);
   }
   else if (parsedObject.actions[0].name === "cancel") {
     // Only option left for 'req.body.actions.value' is 'cancel' so just cancel the conversation
@@ -82,19 +83,19 @@ function unsplash(whoSendIt, searchWord) {
         failedResponse(whoSendIt);
       } else {
         // Array is filled
-        successfulResponse(whoSendIt, response);
+        successfulResponse(whoSendIt, response, searchWord);
       }
     })
     .catch(function(error) {
       failedResponse(whoSendIt);
     });
 }
-function successfulResponse(whoSendIt, response) {
+function successfulResponse(whoSendIt, response, searchWord) {
   // If the response is successful then empty the array just in case it is filled
   unsplashResponse.length = 0;
   // If response is successful then store the response from Unsplash and let user pick a picture
   unsplashResponse = response.results;
-  pickAPicture(whoSendIt, 0);
+  pickAPicture(whoSendIt, 0, searchWord);
 }
 function failedResponse(whoSendIt) {
   sendResponse(whoSendIt, "Oops! We couldn't find anything. You can use your imagination.");
@@ -135,7 +136,7 @@ function sendResponse(whoSendIt, responseString) {
   );
 }
 // Let user pick a picture
-function pickAPicture(whoSendIt, index) {
+function pickAPicture(whoSendIt, index, searchWord) {
   // To make sure that the selection doesn't fall out of array length
   if(index === (unsplashResponse.length-1)) {
     e = 0;
@@ -143,14 +144,15 @@ function pickAPicture(whoSendIt, index) {
     e = index+1;
   }
   var response = [{
-        "callback_id": "picturesFromUnsplash",
-        "pretext": "This is what I have found.",
-        "author_name": "JabarJung Sandhu",
-        "author_link": "https://jabarjungsandhu.com",
-        "title": "Courtesy of Unsplash",
-        "title_link": "https://unsplash.com",
+        // Using 'callback_id' to store data
+        "callback_id": "Posted using /pic " + searchWord,
+        // "pretext": "This is what I have found.",
+        "author_name": "Photo by " + unsplashResponse[index].user.name + " on Unsplash",
+        "author_link": unsplashResponse[index].user.links.html,
+        "title": unsplashResponse[index].description,
+        "title_link": unsplashResponse[index].links.download,
         "image_url": unsplashResponse[index].urls.thumb,
-        "fallback": "This is what I have found.",
+        "fallback": "https://unsplash.com",
         "actions": [
             {
               "name": "send",
@@ -198,7 +200,7 @@ function pickAPicture(whoSendIt, index) {
   );
 }
 // Let user shuffle a picture
-function shuffleAPicture(index, responseURL) {
+function shuffleAPicture(index, responseURL, postedUsing) {
   // To make sure that the selection doesn't fall out of array length
   if(index === (unsplashResponse.length-1)) {
     e = 0;
@@ -208,14 +210,15 @@ function shuffleAPicture(index, responseURL) {
   var response = {
         "attachments": [
           {
-            "callback_id": "picturesFromUnsplash",
-            "pretext": "This is what I have found.",
-            "author_name": "JabarJung Sandhu",
-            "author_link": "https://jabarjungsandhu.com",
-            "title": "Courtesy of Unsplash",
-            "title_link": "https://unsplash.com",
+            // Using 'callback_id' to store data
+            "callback_id": postedUsing,
+            // "pretext": "This is what I have found.",
+            "author_name": "Photo by " + unsplashResponse[index].user.name + " on Unsplash",
+            "author_link": unsplashResponse[index].user.links.html,
+            "title": unsplashResponse[index].description,
+            "title_link": unsplashResponse[index].links.download,
             "image_url": unsplashResponse[index].urls.thumb,
-            "fallback": "This is what I have found.",
+            "fallback": "https://unsplash.com",
             "actions": [
                 {
                   "name": "send",
@@ -260,17 +263,17 @@ function shuffleAPicture(index, responseURL) {
   );
 }
 // Post the selected picture in the channel
-function postPicture(selectedPictureURL) {
+function postPicture(index, postedUsing) {
   var response = [
       {
-      "type": "image",
-      "title": {
-        "type": "plain_text",
-        "text": "This is the picture you selected.",
-        "emoji": true
-      },
-      "image_url": selectedPictureURL,
-      "alt_text": "This is the picture you selected."
+        "fallback": "https://unsplash.com",
+        "author_name": "Photo by " + unsplashResponse[index].user.name + " on Unsplash",
+        "author_link": unsplashResponse[index].user.links.html,
+        "title": unsplashResponse[index].description,
+        "title_link": unsplashResponse[index].links.download,
+        "text": postedUsing,
+        "image_url": unsplashResponse[index].urls.small,
+        "alt_text": postedUsing
     }
   ];
   var data = {
@@ -279,7 +282,7 @@ function postPicture(selectedPictureURL) {
     "as_user": true,
     // Mentioning "content-type" is optional
     // "content-type": 'application/json',
-    "blocks": JSON.stringify(response),
+    "attachments": JSON.stringify(response),
     "pretty": true
   };
   request.post(
