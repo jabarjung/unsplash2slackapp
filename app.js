@@ -22,6 +22,8 @@ var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 let unsplashResponse = [];
 // Variable 'e' is declared so that the selection cycles through array if needed
 var e = "";
+// Number of pictures to fetch
+var itemsPerPage = '20';
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
 app.get('/', function(req, res) {
     res.send('Ngrok is working! Path Hit: ' + req.url);
@@ -71,6 +73,8 @@ function unsplash(whoSendIt, searchWord) {
     unsplashApiUrl +
       '/search/photos?&query=' +
       searchWord +
+      '&per_page=' +
+      itemsPerPage +
       '&client_id=' +
       unsplashAccessKey,
   )
