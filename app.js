@@ -23,8 +23,8 @@ var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 let unsplashResponse = [];
 // Variable 'e' is declared so that the selection cycles through array if needed
 var e = "";
-// Variable to store index which was visible during last iteration
-var visibleIndex = 0; // Setting a arbitrary value of 0
+// Variable to store index which was visible during last iteration (while shuffling)
+// var visibleIndex = 0; // Setting a arbitrary value of 0
 // Number of pictures to fetch
 var itemsPerPage = '20';
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
@@ -53,6 +53,8 @@ app.post('/select', function(req, res){
     postPicture(parseInt(parsedObject.actions[0].value), parsedObject.callback_id);
   } 
   else if (parsedObject.actions[0].name === "shuffle") {
+    /*
+    // Turning off the randomness for shuffle index as I want to iterate through all of the result array
     if(parseInt(parsedObject.actions[0].value) === 0) {
       visibleIndex = unsplashResponse.length-1;
     } else {
@@ -63,7 +65,8 @@ app.post('/select', function(req, res){
     while (shuffleIndex === visibleIndex) {
       shuffleIndex = Math.floor(Math.random() * Math.floor(unsplashResponse.length-1));
     }
-    shuffleAPicture(shuffleIndex, parsedObject.response_url, parsedObject.callback_id);
+    */
+    shuffleAPicture(parseInt(parsedObject.actions[0].value), parsedObject.response_url, parsedObject.callback_id);
   }
   else if (parsedObject.actions[0].name === "cancel") {
     // Only option left for 'req.body.actions.value' is 'cancel' so just cancel the conversation
