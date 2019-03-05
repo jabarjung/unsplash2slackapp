@@ -18,10 +18,13 @@ var webhookURL = process.env.WEBHOOK_URL;
 var port = parseInt(process.env.PORT);
 var unsplashApiUrl = process.env.UNSPLASH_API_URL;
 var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+// Declaring global variables
 // Declare array to store response received from Unsplash
 let unsplashResponse = [];
 // Variable 'e' is declared so that the selection cycles through array if needed
 var e = "";
+// Variable to store index which was visible during last iteration
+var visibleIndex = 0; // Setting a arbitrary value of 0
 // Number of pictures to fetch
 var itemsPerPage = '20';
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
@@ -50,7 +53,17 @@ app.post('/select', function(req, res){
     postPicture(parseInt(parsedObject.actions[0].value), parsedObject.callback_id);
   } 
   else if (parsedObject.actions[0].name === "shuffle") {
-    shuffleAPicture(parseInt(parsedObject.actions[0].value), parsedObject.response_url, parsedObject.callback_id);
+    if(parseInt(parsedObject.actions[0].value) === 0) {
+      visibleIndex = unsplashResponse.length-1;
+    } else {
+      visibleIndex = parseInt(parsedObject.actions[0].value)-1;
+    }
+    // Generating the shuffle array index randomally to have the shuffle selection randomized
+    var shuffleIndex = Math.floor(Math.random() * Math.floor(unsplashResponse.length-1));
+    while (shuffleIndex === visibleIndex) {
+      shuffleIndex = Math.floor(Math.random() * Math.floor(unsplashResponse.length-1));
+    }
+    shuffleAPicture(shuffleIndex, parsedObject.response_url, parsedObject.callback_id);
   }
   else if (parsedObject.actions[0].name === "cancel") {
     // Only option left for 'req.body.actions.value' is 'cancel' so just cancel the conversation
@@ -99,7 +112,8 @@ function successfulResponse(whoSendIt, response, searchWord) {
   unsplashResponse.length = 0;
   // If response is successful then store the response from Unsplash and let user pick a picture
   unsplashResponse = response.results;
-  pickAPicture(whoSendIt, 0, searchWord);
+  // Generating the first array index randomally to have the initial selection randomized
+  pickAPicture(whoSendIt, Math.floor(Math.random() * Math.floor(unsplashResponse.length-1)), searchWord);
 }
 function failedResponse(whoSendIt) {
   sendResponse(whoSendIt, "Oops! We couldn't find anything. You can use your imagination.");
