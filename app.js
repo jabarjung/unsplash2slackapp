@@ -76,7 +76,7 @@ app.post('/select', function(req, res){
   }
 });
 // App gets the search keyword from the user
-app.post('/pic', function(req, res){
+app.post('/pikchar', function(req, res){
   // Return a 200 status back confirming that the command has been received
   res.status(200).end();
   if (req.body.text) {
@@ -338,5 +338,5 @@ function cancelCommand(responseURL) {
 }
 // Listen for requests
 var listener = app.listen(port, function () {
-  console.log('Unsplash2Slack App is listening on port ' + listener.address().port);
+  console.log('Pikchar App is listening on port ' + listener.address().port);
 });
