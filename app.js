@@ -167,7 +167,7 @@ function pickAPicture(whoSendIt, index, searchWord) {
   }
   var response = [{
         // Using 'callback_id' to store data
-        "callback_id": "Posted using /pic " + searchWord,
+        "callback_id": "Posted using /pikchar " + searchWord,
         "author_name": "Photo by " + unsplashResponse[index].user.name + " on Unsplash",
         "author_link": unsplashResponse[index].user.links.html,
         "title": unsplashResponse[index].description,
