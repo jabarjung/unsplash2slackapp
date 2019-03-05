@@ -12,9 +12,6 @@ app.use(bodyParser.urlencoded({extended:false}));
 require('dotenv').config();
 var apiToken = process.env.API_TOKEN;
 var channelId = process.env.CHANNEL_ID;
-var clientId = process.env.CLIENT_ID;
-var clientSecret = process.env.CLIENT_SECRET;
-var webhookURL = process.env.WEBHOOK_URL;
 var port = parseInt(process.env.PORT);
 var unsplashApiUrl = process.env.UNSPLASH_API_URL;
 var unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
@@ -30,6 +27,10 @@ var itemsPerPage = '20';
 // This route handles GET requests to our root ngrok address and responds with the same "Ngrok is working message" we used before
 app.get('/', function(req, res) {
     res.send('Ngrok is working! Path Hit: ' + req.url);
+});
+// Redirect URL (Don't know if it's required but let's setup for now)
+app.post('/oauth', function(req, res){
+  res.status(200).end();
 });
 // Handle Events API events
 app.post('/eventNotifications', function(req, res){
@@ -149,8 +150,8 @@ function sendResponse(whoSendIt, responseString) {
       if(err) {
         // If there's an HTTP error, log the error message
         console.log(err);
-      } else{
-        // Otherwise, log Slack API responses
+      } else {
+        // console.log(resp);
         // console.log(body);
       }
     }
@@ -167,7 +168,6 @@ function pickAPicture(whoSendIt, index, searchWord) {
   var response = [{
         // Using 'callback_id' to store data
         "callback_id": "Posted using /pic " + searchWord,
-        // "pretext": "This is what I have found.",
         "author_name": "Photo by " + unsplashResponse[index].user.name + " on Unsplash",
         "author_link": unsplashResponse[index].user.links.html,
         "title": unsplashResponse[index].description,
@@ -201,8 +201,6 @@ function pickAPicture(whoSendIt, index, searchWord) {
   var data = {
     "token": apiToken,
     "channel": channelId,
-    // Mentioning "content-type" is optional
-    // "content-type": 'application/json',
     "user": whoSendIt,
     "attachments": JSON.stringify(response),
     "pretty": true
@@ -212,7 +210,7 @@ function pickAPicture(whoSendIt, index, searchWord) {
     {
       form: data
     },
-    function(err, resp, body) {
+    function(err) {
       if(err) {
         // If there's an HTTP error, log the error message
         console.log(err);
@@ -233,7 +231,6 @@ function shuffleAPicture(index, responseURL, postedUsing) {
           {
             // Using 'callback_id' to store data
             "callback_id": postedUsing,
-            // "pretext": "This is what I have found.",
             "author_name": "Photo by " + unsplashResponse[index].user.name + " on Unsplash",
             "author_link": unsplashResponse[index].user.links.html,
             "title": unsplashResponse[index].description,
@@ -275,7 +272,7 @@ function shuffleAPicture(index, responseURL, postedUsing) {
     {
       form: data
     },
-    function(err, resp, body) {
+    function(err) {
       if(err) {
         // If there's an HTTP error, log the error message
         console.log(err);
@@ -301,8 +298,6 @@ function postPicture(index, postedUsing) {
     "token": apiToken,
     "channel": channelId,
     "as_user": true,
-    // Mentioning "content-type" is optional
-    // "content-type": 'application/json',
     "attachments": JSON.stringify(response),
     "pretty": true
   };
@@ -311,7 +306,7 @@ function postPicture(index, postedUsing) {
     {
       form: data
     },
-    function(err, resp, body) {
+    function(err) {
       if(err) {
         // If there's an HTTP error, log the error message
         console.log(err);
@@ -333,7 +328,7 @@ function cancelCommand(responseURL) {
     {
       form: data
     },
-    function(err, resp, body) {
+    function(err) {
       if(err) {
         // If there's an HTTP error, log the error message
         console.log(err);
