@@ -1,6 +1,6 @@
 # A Slack App to send images from Unsplash in Slack.
 
-I have named it 'Pikchar'. You can name it whatever you want when you install it. It works analogously to the ‘Giphy’ app. The user can search for a keyword, shuffle through pictures and select one to send.
+I have named it 'Pikchar'. You can name it whatever you want when you install it. It works analogously to the ‘Giphy’ app. The user can search for a keyword, shuffle through pictures, and select one to send.
 
 ### Setting it up
 >1. Set up ngrok. Use the tutorial at this link to set it up: https://api.slack.com/tutorials/tunneling-with-ngrok. Use '4390' as port. After configuring it up you will get a forwarding address which looks something like ' https://....ngrok.io'. Copy that from the terminal to the clipboard. You will need it later while creating a new app at 'https://api.slack.com/apps'.
